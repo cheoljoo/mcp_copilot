@@ -146,4 +146,87 @@ $  copilot
 
 
 # 3. mcp (gerrit)
-뒤에 이어서 gerrit에 대해서도 넣어야 할 것이다.
+- copilot에서 요청할 prompt
+  - prompt
+    - https://github.com/cayirtepeomer/gerrit-code-review-mcp 을 이용하여 gerrit 관련 MCP도 설치하고 사용하고 싶습니다. uv를 사용해주세요.
+      - 뒤의 uv를 사용하라는 것을 하지 않아도 됨.  그러나, 제 linux account에서는 pip 등이 문제가 있어 uvx로 처리하고 해결됨.
+    - 설치 완료 요약
+      - ```txt
+        ✅ Gerrit MCP 서버 설치 완료
+
+        - Repository: https://github.com/cayirtepeomer/gerrit-code-review-mcp (https://github.com/cayirtepeomer/gerrit-code-review-mcp)
+        - 위치: /data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp
+        - 의존성: uv sync로 모든 패키지 설치 완료
+
+        ✅ MCP 설정 완료
+
+        - 설정 파일: ~/.copilot/mcp-config.json
+        - Gerrit 서버: vgit.lge.com
+        - 사용자: cheoljoo.lee
+
+        다음 단계:
+
+        1. Copilot CLI 재시작: copilot
+        2. Gerrit 기능 사용 예시:
+          - Gerrit에서 나에게 할당된 모든 리뷰 찾기
+          - Gerrit change 12345의 상세 정보 보기
+          - Gerrit patchset 1과 3 비교하기
+          - Gerrit change에 리뷰 코멘트 남기기
+        3. 로그 확인 (문제 발생 시): tail -f ~/.copilot/logs/mcp-*.log
+        ```
+    - mcp-config.json
+      - ```python
+        {
+          "mcpServers": {
+            "jira": {
+              "command": "uvx",
+              "args": [
+                "mcp-atlassian"
+              ],
+              "env": {
+                "JIRA_URL": "http://jira.lge.com/issue",
+                "JIRA_PERSONAL_TOKEN": "your_token_here",
+                "CONFLUENCE_URL": "http://collab.lge.com/main",
+                "CONFLUENCE_PERSONAL_TOKEN": "your_token_here",
+                "MCP_VERBOSE": "true"
+              }
+            },
+            "gerrit": {
+              "command": "/data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp/.venv/bin/python",
+              "args": [
+                "/data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp/server.py",
+                "--transport",
+                "stdio"
+              ],
+              "cwd": "/data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp",
+              "env": {
+                "PYTHONPATH": "/data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp",
+                "VIRTUAL_ENV": "/data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp/.venv",
+                "PATH": "/data01/cheoljoo.lee/code/mcp_copilot/gerrit-code-review-mcp/.venv/bin:/usr/local/bin:/usr/bin:/bin",
+                "GERRIT_HOST": "vgit.lge.com",
+                "GERRIT_USER": "your_id",
+                "GERRIT_HTTP_PASSWORD": "your_passwd",
+                "GERRIT_SSL_VERIFY": "false"
+              }
+            }
+          }
+        }
+        ```
+  - prompt> gerrit 정보는 다음과 같다. 저장해두고 사용할수 있게 해 달라.
+    - pvs_crawler/SWPMUtil/global_variables.py 안에서 gerrit_conf_dict  정보를 copy & paste하여 copilot에게 알려주면 알아서 원하는 정보들을 얻어와줌
+    - 예) 이것은 curl로 해결하는 것이다. 
+      - ```txt
+        ❯ gerrit as에서 cheoljoo.lee 의 commit 이 있는지 살펴봐주세요.
+
+        ● Check for cheoljoo.lee's commits in as gerrit
+          $ curl -s -u "vspvs:BsZGxmejS3Ucec0sHvnwlZAAVX4LQNr8kOSxYAwaHQ" "http://vgit.lge.com/as/a/changes/?q=owner:cheoljoo.lee&n=5" 2>&1 | sed '1d' | python3 -c "import sys, json; data=json.load(sys.stdin); print(f'총 {len(data)}개 커밋\n'); [print(f'{i+1}. [{d[\"_number\"]}] {d[\"subject\"]}\n   프로젝트: 
+          {d[\"project\"]}\n   브랜치: {d[\"branch\"]}\n   업데이트: {d[\"updated\"]}\n   URL: http://vgit.lge.com/as/c/{d[\"_number\"]}\n') for i, d in enumerate(data)]" 2>/dev/null
+          └ 8 lines...
+
+        ● gerrit as 서버에서 cheoljoo.lee가 작성한 커밋이 1건 있습니다.
+
+        URL: http://vgit.lge.com/as/c/2142535 (http://vgit.lge.com/as/c/2142535)
+        ```
+
+먼저 내 DB에 대한 MCP를 먼저 만들어봐야 할 듯
+gerrit를 위한 gerrit-code-review-mcp 소스를 분석해서 변경해야 할 듯
