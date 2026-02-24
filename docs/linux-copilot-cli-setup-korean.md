@@ -146,6 +146,7 @@ $  copilot
 
 
 # 3. mcp (gerrit)
+- git clone https://github.com/cayirtepeomer/gerrit-code-review-mcp.git
 - copilot에서 요청할 prompt
   - prompt
     - https://github.com/cayirtepeomer/gerrit-code-review-mcp 을 이용하여 gerrit 관련 MCP도 설치하고 사용하고 싶습니다. uv를 사용해주세요.
@@ -185,8 +186,10 @@ $  copilot
               ],
               "env": {
                 "JIRA_URL": "http://jira.lge.com/issue",
+                "JIRA_USERNAME": "your_id@lge.com",
                 "JIRA_PERSONAL_TOKEN": "your_token_here",
                 "CONFLUENCE_URL": "http://collab.lge.com/main",
+                "CONFLUENCE_USERNAME": "your_id@lge.com",
                 "CONFLUENCE_PERSONAL_TOKEN": "your_token_here",
                 "MCP_VERBOSE": "true"
               }
@@ -230,3 +233,4 @@ $  copilot
 
 먼저 내 DB에 대한 MCP를 먼저 만들어봐야 할 듯
 gerrit를 위한 gerrit-code-review-mcp 소스를 분석해서 변경해야 할 듯
+gerrit 관련 MCP는 만들어 사용하는 것이 좋을 듯하다.  단지 , MCP는 forwarding하는 것 뿐이고 우리는 server마다 서로 다는 id,passwd를 가지고 있어서 자체적으로 하나 만들어 사용하는 것이 더 바람직할 것이다.
