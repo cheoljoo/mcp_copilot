@@ -124,6 +124,59 @@ $  copilot
         전체적으로 MCP 서버 설정, 사용 가이드, 기술 개요 등 다양한 내용이 있습니다.
       ```
 
+- 예제
+  - prompt> http://collab.lge.com/main/pages/viewpage.action?pageId=3540287983 을 먼저 읽고 , http://collab.lge.com/main/pages/viewpage.action?pageId=3540287983 와 같은 방식으로 hexa-results-object.json 을 분석해 주고 collab에는 없다는 다른 방식으로도 분석을 추가해달라. 결과는 collab.md 에 적어주세요.
+    - ```txt
+      ◐ The user wants me to:
+        1. Read the Confluence page at the given URL
+        2. Analyze `hexa-results-object.json` in the same way as described in that page
+        3. Add additional analysis methods not in the Confluence page
+        4. Write results to `collab.md`
+      
+        Let me start by fetching the Confluence page and reading the JSON file simultaneously.
+      
+      ● Get Page
+        └ {"result":"{\n  \"metadata\": {\n    \"id\": \"3540287983\",\n    \"title\": ...
+      
+      ● Read hexa-results-object.json
+        └ 1 line read
+      
+      ◐ The JSON file is large. Let me read the Confluence page more carefully and understand the analysis methodology, then read parts of the JSON file to understand its structure.
+      
+        From the Confluence page (26.02.11 W07), I can see it contains:
+        1. QCD Issues tracking table with JIRA issues
+        2. Product development WR review sections
+      
+        Now let me understand what `hexa-results-object.json` contains by looking at its structure. Let me use jq to explore the JSON file structure.
+      
+      ● Get top-level keys of JSON file
+        $ cd /data01/cheoljoo.lee/code/mcp_copilot && jq 'keys' hexa-results-object.json 2>/dev/null | head -30
+        └ 1 line...
+      
+      ● Explore JSON structure
+        $ cd /data01/cheoljoo.lee/code/mcp_copilot && python3 -c "
+        import json
+        with open('hexa-results-object.json') as f:
+            data = json.load(f)
+        print(type(data))...
+        └ 9 lines...
+      
+        ..... 생략 .....
+      
+      ◐ Now I have all the data I need to write a comprehensive analysis. Let me now create the `collab.md` file with:
+        1. Analysis in the same way as the Confluence page (temporal tracking, issue status, group comparison)
+        2. Additional analyses not in the Confluence page (statistical, correlation, etc.)
+      
+        The Confluence page (26.02.11 W07) structure was:
+        - QCD Issues tracking table - current/previous week status for various JIRA issues
+        - Product development WR review section by teams
+      
+        For the HEXA metrics JSON, I'll mirror a similar structure:
+        1. 현황 요약 - Summary table like QCD issues table
+      
+      ● 이제 충분한 데이터를 확보했습니다. collab.md를 작성합니다.
+      ```
+
 ### 2.2.1. trouble shooting
 - jira 연결 잘 안될때 
   - prompt❯ get details for Jira ticket AGILEDEV-653
