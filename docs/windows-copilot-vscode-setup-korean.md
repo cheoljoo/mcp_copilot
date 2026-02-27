@@ -171,8 +171,8 @@ Test-Path "D:\PVS\mcp\node_modules\@modelcontextprotocol\server-sequential-think
 
 **예시:**
 ```json
-"JIRA_PERSONAL_TOKEN": "qR7sT9uV2wX4yZ6aB8cD0eF3gH5iJ1kL4mN7oP0qR2sT5uV8wX",
-"CONFLUENCE_PERSONAL_TOKEN": "zY6xW4vU2tS0rQ9pO7nM5lK3jI1hG9fE7dC5bA3zA1yX9wV7uT",
+"JIRA_PERSONAL_TOKEN": "qR7sT9uV2wX4yZ6aB8cD0eF3gH5iJ1kL4mN7oP0qR2sT5u...",
+"CONFLUENCE_PERSONAL_TOKEN": "zY6xW4vU2tS0rQ9pO7nM5lK3jI1hG9fE7dC5bA3zA1yX9w...",
 ```
 
 **저장**: `Ctrl + S`
