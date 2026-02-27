@@ -288,6 +288,28 @@ $  copilot
         URL: http://vgit.lge.com/as/c/2142535 (http://vgit.lge.com/as/c/2142535)
         ```
 
-먼저 내 DB에 대한 MCP를 먼저 만들어봐야 할 듯
-gerrit를 위한 gerrit-code-review-mcp 소스를 분석해서 변경해야 할 듯
-gerrit 관련 MCP는 만들어 사용하는 것이 좋을 듯하다.  단지 , MCP는 forwarding하는 것 뿐이고 우리는 server마다 서로 다는 id,passwd를 가지고 있어서 자체적으로 하나 만들어 사용하는 것이 더 바람직할 것이다.
+- 먼저 내 DB에 대한 MCP를 먼저 만들어봐야 할 듯
+- gerrit를 위한 gerrit-code-review-mcp 소스를 분석해서 변경해야 할 듯
+- gerrit 관련 MCP는 만들어 사용하는 것이 좋을 듯하다.  단지 , MCP는 forwarding하는 것 뿐이고 우리는 server마다 서로 다는 id,passwd를 가지고 있어서 자체적으로 하나 만들어 사용하는 것이 더 바람직할 것이다.
+
+# 4. MCP flow
+```
+사용자: "내 GitHub 저장소를 알려줘"
+  ↓
+VS Code (입력 수신)
+  ↓
+LLM: "github_list_repositories 도구를 호출해야겠다"
+  ↓
+LLM → VS Code: "이 도구 실행해줘" (요청)
+  ↓
+VS Code → MCP Server: "실제로 실행" (stdio/HTTP)
+  ↓
+MCP Server → VS Code: 결과 반환
+  ↓
+VS Code → LLM: 결과 전달
+  ↓
+LLM: 자연언어로 정리
+  ↓
+VS Code → 사용자: 답변 표시
+```
+
