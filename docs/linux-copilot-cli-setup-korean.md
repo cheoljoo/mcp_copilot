@@ -36,6 +36,10 @@ $  copilot
  ## 2.1. login
  - /login
     - brower login and put the value
+    - [enter] because we can not run browser
+    - you can get the following message :  Enter one-time code: 9A11-E789 at https://github.com/login/device
+        - https://github.com/login/device in your windows browswer. after login , you can put one-time code
+    - login OK.
 
 
 ## 2.2. mcp (jira, confluence))
