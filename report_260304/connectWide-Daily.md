@@ -261,3 +261,7 @@ TOC
 | 이슈결함밀도 | 📉↓ deteriorating | +0.74%/일 | 0.007 | 0.102 | 지속 악화 추세 |
 | ShiftLeft Reopen율 | 📈↑ improving | -1.29%/일 | 0.001 | 0.147 | 지속 개선 추세 |
 
+
+
+
+> 비고 : origin doc : https://github.com/cheoljoo/mcp_copilot/blob/main/report_260304/connectWide-Daily.md

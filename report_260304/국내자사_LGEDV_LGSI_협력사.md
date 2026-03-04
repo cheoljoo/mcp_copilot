@@ -77,3 +77,4 @@
 
 
 
+> 비고 : origin doc : https://github.com/cheoljoo/mcp_copilot/blob/main/report_260304/%EA%B5%AD%EB%82%B4%EC%9E%90%EC%82%AC_LGEDV_LGSI_%ED%98%91%EB%A0%A5%EC%82%AC.md

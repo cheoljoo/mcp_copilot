@@ -548,3 +548,7 @@ R²는 트렌드의 설명력 (1에 가까울수록 선형 트렌드가 명확).
 
 > 🟢 = 상위 33%, 🟡 = 중위 33%, 🔴 = 하위 33% (각 지표의 방향성 기준 적용)
 
+
+
+
+> 비고 : origin doc : https://github.com/cheoljoo/mcp_copilot/blob/main/report_260304/connectWide-Weekly.md

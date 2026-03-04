@@ -209,3 +209,6 @@ TOC
 - 리뷰 건수(인당 Review수)와 별개로, **리뷰를 실제로 반영하는 비율**이 Reopen율 결정
 - 리뷰 수가 많아도 반영하지 않으면 품질 개선 효과 없음
 
+
+
+> 비고 : origin doc : https://github.com/cheoljoo/mcp_copilot/blob/main/report_260304/connectWide-Relation.md
