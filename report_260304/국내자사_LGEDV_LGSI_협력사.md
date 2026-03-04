@@ -1,5 +1,15 @@
 이 문서는 국내자사/LGEDV/LGSI/협력사 조직에 대한 비교 분석한 내용들 입니다.
 
+TOC
+- [4개 큰 조직(국내자사/LGEDV/LGSI/협력사) 에 대한 HEXA (하이브리드 효율성 지표) 상세 분석 보고서](#4개-큰-조직국내자사lgedvlgsi협력사-에-대한-hexa-하이브리드-효율성-지표-상세-분석-보고서)
+- [4개 큰 조직(국내자사/LGEDV/LGSI/협력사) 에 대한 기존 collab 보고서 참조한 분석 보고서](#4개-큰-조직국내자사lgedvlgsi협력사-에-대한-기존-collab-보고서-참조한-분석-보고서)
+  - [■ Collab 방식 분석: HEXA 지표 WR 리뷰](#-collab-방식-분석-hexa-지표-wr-리뷰)
+    - [1. 전체(total) HEXA 지표 WR 리뷰 (2.국내자사 / 3.LGEDV 베트남자사 / 4.LGSI 자사 / 5.협력사전체 는 링크 참조)](#1-전체total-hexa-지표-wr-리뷰-2국내자사--3lgedv-베트남자사--4lgsi-자사--5협력사전체-는-링크-참조)
+
+
+---
+
+
 # 4개 큰 조직(국내자사/LGEDV/LGSI/협력사) 에 대한 HEXA (하이브리드 효율성 지표) 상세 분석 보고서
 - 상세 페이지 : http://mod.lge.com/hub/cheoljoo.lee/publish/-/blob/main/lge/hexa_index_4_ptarts_analysis/hexa-results-object.md
 - 분석 기간: 2025년 1월 ~ 2026년 1월 (13개월)
