@@ -1,0 +1,328 @@
+{
+    "hexaAdminMap": {
+      "1": {
+        "name": "인당 프로젝트수",
+        "sign": 1
+      },
+      "2": {
+        "name": "인당 상시잔여이슈",
+        "sign": -1
+      },
+      "3": {
+        "name": "이슈 처리일",
+        "sign": -1
+      },
+      "4": {
+        "name": "Commit당 이슈발생",
+        "sign": -1
+      },
+      "5": {
+        "name": "인당 이슈Inflow(발생)",
+        "sign": -1
+      },
+      "6": {
+        "name": "완료이슈 평균Reopen횟수[제외예정]",
+        "sign": -1
+      },
+      "7": {
+        "name": "인당 이슈Outflow(해결)",
+        "sign": 1
+      },
+      "8": {
+        "name": "인당 코드 변경량",
+        "sign": 1
+      },
+      "9": {
+        "name": "인당 개발산출물Outflow(해결)",
+        "sign": 1
+      },
+      "10": {
+        "name": "인당 Commit코드 변경량",
+        "sign": 1
+      },
+      "11": {
+        "name": "인당 개발산출물 Burndown",
+        "sign": -1
+      },
+      "12": {
+        "name": "개발산출물 처리율 (Outflow/Inflow)",
+        "sign": 1
+      },
+      "13": {
+        "name": "인당 개발산출물 상시잔여수",
+        "sign": -1
+      },
+      "14": {
+        "name": "인당 개발산출물Inflow(발생)",
+        "sign": -1
+      },
+      "15": {
+        "name": "인당 이슈 Burndown",
+        "sign": -1
+      },
+      "16": {
+        "name": "이슈 처리율(Outflow/Inflow)",
+        "sign": 1
+      },
+      "17": {
+        "name": "이슈 최초대응일",
+        "sign": -1
+      },
+      "18": {
+        "name": "개발산출물 최초대응일",
+        "sign": -1
+      },
+      "19": {
+        "name": "개발산출물 처리일",
+        "sign": -1
+      },
+      "20": {
+        "name": "인당 개발산출물+Review Outflow",
+        "sign": 1
+      },
+      "21": {
+        "name": "인당 Review수",
+        "sign": 1
+      },
+      "22": {
+        "name": "인당 Reject수",
+        "sign": 1
+      },
+      "23": {
+        "name": "Reject/Review율[리뷰관점]",
+        "sign": 1
+      },
+      "24": {
+        "name": "Commit당 Rejected수(AI+Reviewer)[리뷰관점]",
+        "sign": 1
+      },
+      "25": {
+        "name": "인당 Rejected수(AI+Reviewer)[리뷰관점]",
+        "sign": 1
+      },
+      "26": {
+        "name": "인당 Rejected(AI+RV)/Commit율[리뷰관점]",
+        "sign": 1
+      },
+      "27": {
+        "name": "활성개발자수",
+        "sign": 1
+      },
+      "28": {
+        "name": "이슈 활성개발자수",
+        "sign": 1
+      },
+      "29": {
+        "name": "Code 활성개발자수",
+        "sign": 1
+      },
+      "30": {
+        "name": "산출물 활성개발자수",
+        "sign": 1
+      },
+      "31": {
+        "name": "이슈Inflow(발생)",
+        "sign": -1
+      },
+      "32": {
+        "name": "이슈Outflow(해결)",
+        "sign": 1
+      },
+      "33": {
+        "name": "Code Review수",
+        "sign": 1
+      },
+      "34": {
+        "name": "Code Reject수",
+        "sign": 1
+      },
+      "35": {
+        "name": "완료이슈 Reopen율",
+        "sign": -1
+      },
+      "36": {
+        "name": "진성완료이슈 Reopen율",
+        "sign": -1
+      },
+      "37": {
+        "name": "진성완료이슈 Reopen횟수[제외예정]",
+        "sign": -1
+      },
+      "38": {
+        "name": "잔여이슈 Reopen율[내부]",
+        "sign": -1
+      },
+      "39": {
+        "name": "ShiftLeft Reopen율[내부]",
+        "sign": -1
+      },
+      "40": {
+        "name": "진성ShiftLeft Reopen율[내부]",
+        "sign": -1
+      },
+      "41": {
+        "name": "누적전체이슈 Reopen율[내부]",
+        "sign": -1
+      },
+      "42": {
+        "name": "누적진성전체이슈 Reopen율[내부]",
+        "sign": -1
+      },
+      "43": {
+        "name": "누적전체이슈 대비 잔여이슈Reopen율[내부]",
+        "sign": -1
+      },
+      "44": {
+        "name": "누적진성전체이슈 대비 잔여이슈Reopen율[내부]",
+        "sign": -1
+      },
+      "45": {
+        "name": "이슈 쏠림[내부]",
+        "sign": 1
+      },
+      "46": {
+        "name": "인라인 리뷰 코드수정비율[내부]",
+        "sign": 1
+      },
+      "47": {
+        "name": "인라인 개발자리뷰 코드수정비율[내부]",
+        "sign": 1
+      },
+      "48": {
+        "name": "인라인 AI리뷰 코드수정비율[내부]",
+        "sign": 1
+      },
+      "49": {
+        "name": "인라인 정적분석 코드수정비율[내부]",
+        "sign": 1
+      },
+      "50": {
+        "name": "커밋당 인라인 리뷰 코드수정횟수[내부]",
+        "sign": 1
+      },
+      "51": {
+        "name": "커밋당 인라인 AI리뷰 코드수정횟수[내부]",
+        "sign": 1
+      },
+      "52": {
+        "name": "커밋당 인라인 개발자리뷰 코드수정횟수[내부]",
+        "sign": 1
+      },
+      "53": {
+        "name": "인라인 개발자+AI리뷰 코드수정비율[내부]",
+        "sign": 1
+      },
+      "54": {
+        "name": "커밋당 인라인 개발자+AI리뷰 코드수정횟수[내부]",
+        "sign": 1
+      },
+      "55": {
+        "name": "인라인 개발자+AI리뷰 코드수정or응답 비율[내부]",
+        "sign": 1
+      },
+      "56": {
+        "name": "커밋당 인라인 개발자+AI리뷰 코드수정or응답 횟수[내부]",
+        "sign": 1
+      },
+      "57": {
+        "name": "인라인 개발자리뷰 코드수정or응답 비율[내부]",
+        "sign": 1
+      },
+      "58": {
+        "name": "커밋당 인라인 개발자리뷰 코드수정or응답 횟수[내부]",
+        "sign": 1
+      },
+      "59": {
+        "name": "인라인 AI리뷰 코드수정or응답 비율[내부]",
+        "sign": 1
+      },
+      "60": {
+        "name": "커밋당 인라인 AI리뷰 코드수정or응답 횟수[내부]",
+        "sign": 1
+      },
+      "61": {
+        "name": "Reject/Review율[개발관점]",
+        "sign": -1
+      },
+      "62": {
+        "name": "Commit당 Rejected수(AI+Reviewer)[개발관점]",
+        "sign": -1
+      },
+      "63": {
+        "name": "인당 Rejected수(AI+Reviewer)[개발관점]",
+        "sign": -1
+      },
+      "64": {
+        "name": "인당 Rejected(AI+RV)/Commit율[개발관점]",
+        "sign": -1
+      },
+      "65": {
+        "name": "평균 잔여이슈Age[내부]",
+        "sign": -1
+      },
+      "66": {
+        "name": "Commit 활성개발자수[내부]",
+        "sign": 1
+      },
+      "67": {
+        "name": "Review 활성개발자수[내부]",
+        "sign": 1
+      },
+      "68": {
+        "name": "코드 변경량(TOTAL LOC)",
+        "sign": 1
+      },
+      "69": {
+        "name": "이슈결함밀도(이슈Inflow/변경kLOC)",
+        "sign": -1
+      },
+      "70": {
+        "name": "Commit당 코드 변경량(LOC) [내부]",
+        "sign": 1
+      },
+      "71": {
+        "name": "코드 삽입율(Insert LOC/Total LOC) [내부]",
+        "sign": 1
+      },
+      "72": {
+        "name": "코드 삭제율(Delete LOC/Total LOC) [내부]",
+        "sign": 1
+      },
+      "73": {
+        "name": "코드 수정 밀도 (Total LOC / 개발산출물 Outflow) [내부]",
+        "sign": -1
+      },
+      "74": {
+        "name": "개발산출물 밀도 (개발산출물 Outflow/Total LOC*1000) [내부]",
+        "sign": 1
+      },
+      "75": {
+        "name": "개발산출물 Inflow [내부]",
+        "sign": 1
+      },
+      "76": {
+        "name": "개발산출물 Outflow [내부]",
+        "sign": 1
+      },
+      "77": {
+        "name": "이슈결함밀도2(이슈Inflow/변경kLOC)[내부]",
+        "sign": -1
+      },
+      "78": {
+        "name": "누적완료이슈 Reopen율[내부]",
+        "sign": -1
+      },
+      "79": {
+        "name": "누적진성완료이슈 Reopen율[내부]",
+        "sign": -1
+      },
+      "80": {
+        "name": "진성이슈Inflow(발생)[내부]",
+        "sign": -1
+      },
+      "81": {
+        "name": "진성이슈결함밀도(이슈Inflow/변경kLOC)[내부]",
+        "sign": -1
+      }
+    }
+}
