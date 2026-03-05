@@ -45,6 +45,32 @@ KEY_COLS = {
     'outflow_issue':'인당 이슈Outflow(해결)',
 }
 
+# 지표 방향성: '+' = 높을수록 좋음(개선), '-' = 낮을수록 좋음(개선)
+COL_DIR = {
+    'outflow':       '+',  # 인당 Outflow ↑ 개선
+    'commit_loc':    '-',  # Commit당 LOC ↓ 개선 (소규모 커밋 권장)
+    'issue_rate':    '+',  # 이슈 처리율 ↑ 개선
+    'reopen':        '-',  # Reopen율 ↓ 개선
+    'reject_review': '-',  # Reject/Review율 ↓ 개선
+    'review_count':  '+',  # 인당 Review수 ↑ 개선
+    'defect_density':'-',  # 이슈결함밀도 ↓ 개선
+    'burndown':      '+',  # Burndown ↑ 개선 (소화량 증가)
+    'total_loc':     '+',  # 코드 변경량 ↑ 개선
+    'active_dev':    '+',  # 활성개발자수 ↑ 개선
+    'inflow':        '-',  # 이슈 Inflow ↓ 개선 (신규 이슈 감소)
+    'outflow_issue': '+',  # 이슈 Outflow ↑ 개선
+}
+
+
+def dir_label(key, label):
+    """지표명 앞에 [+]/[-] 방향 표시 추가"""
+    d = COL_DIR.get(key, '')
+    if d == '+':
+        return f'[+]{label}'
+    elif d == '-':
+        return f'[-]{label}'
+    return label
+
 
 def get_group(g):
     return df_2026[df_2026['GROUP'] == g].sort_values('snapdate').copy()
@@ -192,8 +218,13 @@ def section2_correlation():
     lines.append("")
 
     # 그룹별 주요 지표 평균 비교
-    lines.append("### 그룹별 주요 지표 평균 비교\n")
-    lines.append("| 그룹 | 인당 Outflow | Commit LOC | 이슈처리율(%) | Reopen율(%) | Review수 |")
+    # 평균 기간: df_2026 전체(설 연휴 2026-02-16주 제외)
+    pt_for_period = get_group('PARTNER_TOTAL')
+    period_start = pt_for_period['snapdate'].min().strftime('%Y-%m-%d')
+    period_end   = pt_for_period['snapdate'].max().strftime('%Y-%m-%d')
+    lines.append(f"### 그룹별 주요 지표 평균 비교 (기간: {period_start} ~ {period_end}, 설 연휴 2026-02-16주 제외)\n")
+    lines.append("> [+] = 높을수록 개선(상승이 좋음) / [-] = 낮을수록 개선(하락이 좋음)\n")
+    lines.append(f"| 그룹 | {dir_label('outflow','인당 Outflow')} | {dir_label('commit_loc','Commit LOC')} | {dir_label('issue_rate','이슈처리율(%)')} | {dir_label('reopen','Reopen율(%)')} | {dir_label('review_count','Review수')} |")
     lines.append("|------|------------|-----------|------------|-----------|---------|")
     for g in GROUPS:
         gdf = get_group(g)
@@ -238,6 +269,7 @@ def section3_timeseries():
         ('defect_density','이슈결함밀도',               '품질'),
     ]
 
+    lines.append("> [+] = 높을수록 개선 / [-] = 낮을수록 개선\n")
     lines.append("| 지표 | 카테고리 | 1월초 | 최근 | 기울기(주/주) | R² | 트렌드 |")
     lines.append("|------|---------|------|------|------------|-----|------|")
     for key, label, category in metrics:
@@ -247,7 +279,7 @@ def section3_timeseries():
         last_valid  = arr[~np.isnan(arr)][-1] if (~np.isnan(arr)).any() else np.nan
         arrow = trend_arrow(first_valid, last_valid)
         trend_str = "📈 상승" if slope > 0.01 else ("📉 하락" if slope < -0.01 else "➡️ 보합")
-        lines.append(f"| {label} | {category} | {fmt(first_valid)} | {fmt(last_valid)} | {slope:+.3f} | {r2:.3f} | {arrow} {trend_str} |")
+        lines.append(f"| {dir_label(key, label)} | {category} | {fmt(first_valid)} | {fmt(last_valid)} | {slope:+.3f} | {r2:.3f} | {arrow} {trend_str} |")
     lines.append("")
 
     # 주차별 상세 트렌드 (이슈 처리율)
@@ -438,7 +470,8 @@ def section6_group_comparison():
     ]
 
     lines.append("### 조직별 평균 성과 지표\n")
-    header = "| 조직 | " + " | ".join(m[1] for m in metric_map) + " |"
+    lines.append("> [+] = 높을수록 개선 / [-] = 낮을수록 개선\n")
+    header = "| 조직 | " + " | ".join(dir_label(m[0], m[1]) for m in metric_map) + " |"
     sep    = "|------|" + "-------|" * len(metric_map)
     lines.append(header)
     lines.append(sep)
@@ -539,13 +572,14 @@ def section7_conclusion():
     slope_ir = stats.linregress(np.arange(len(ir_valid)), ir_valid).slope if len(ir_valid) > 1 else 0
 
     lines.append("### 핵심 요약\n")
+    lines.append("> [+] = 높을수록 개선(↑ 좋음) / [-] = 낮을수록 개선(↓ 좋음)\n")
     lines.append(f"| 구분 | 지표 | 현황 | 평가 |")
     lines.append(f"|------|------|------|------|")
-    lines.append(f"| 생산성 | 인당 산출물 Outflow 평균 | {fmt(avg_outflow)} | {'📈 주목' if avg_outflow > 5 else '보통'} |")
-    lines.append(f"| 생산성 | Commit당 코드 변경량 평균 | {fmt(avg_cloc)} LOC | 안정 |")
-    lines.append(f"| 효율성 | 이슈 처리율 평균 | {fmt(avg_ir)}% | {'✅ 양호' if avg_ir >= 100 else '⚠️ 개선 필요'} |")
-    lines.append(f"| 품질 | Reopen율 평균 | {fmt(avg_reopen)}% | {'🔴 주의' if avg_reopen > 15 else '✅ 양호'} |")
-    lines.append(f"| 리뷰 | 인당 Review수 평균 | {fmt(avg_reviews)} | 적정 |")
+    lines.append(f"| 생산성 | {dir_label('outflow','인당 산출물 Outflow 평균')} | {fmt(avg_outflow)} | {'📈 주목' if avg_outflow > 5 else '보통'} |")
+    lines.append(f"| 생산성 | {dir_label('commit_loc','Commit당 코드 변경량 평균')} | {fmt(avg_cloc)} LOC | 안정 |")
+    lines.append(f"| 효율성 | {dir_label('issue_rate','이슈 처리율 평균')} | {fmt(avg_ir)}% | {'✅ 양호' if avg_ir >= 100 else '⚠️ 개선 필요'} |")
+    lines.append(f"| 품질 | {dir_label('reopen','Reopen율 평균')} | {fmt(avg_reopen)}% | {'🔴 주의' if avg_reopen > 15 else '✅ 양호'} |")
+    lines.append(f"| 리뷰 | {dir_label('review_count','인당 Review수 평균')} | {fmt(avg_reviews)} | 적정 |")
     lines.append("")
 
     lines.append("### 주요 발견사항\n")

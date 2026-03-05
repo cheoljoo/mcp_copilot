@@ -113,6 +113,14 @@ def format_pval(p: float) -> str:
         return f"{p:.4f}"
 
 
+def raw_early_recent(series: pd.Series, n: int = 7) -> tuple[float, float]:
+    """원본 시계열에서 초기 n일 평균과 최근 n일 평균을 반환"""
+    valid = series.dropna()
+    if len(valid) < n:
+        n = max(1, len(valid) // 2)
+    return float(valid.iloc[:n].mean()), float(valid.iloc[-n:].mean())
+
+
 def analyze_group(group_name: str, gdf: pd.DataFrame, metrics: dict) -> dict:
     """특정 그룹 분석"""
     gdf = gdf.sort_values("snapdate").copy()
@@ -129,17 +137,21 @@ def analyze_group(group_name: str, gdf: pd.DataFrame, metrics: dict) -> dict:
     # 전체 Hexa Index 트렌드
     hexa_trend = analyze_trend(t, hexa_index.values)
     
-    # 개별 지표 트렌드
+    # 개별 지표 트렌드 (정규화 점수 기준 trend + 원본값 비교)
     metric_trends = {}
     for metric, scores in metric_scores.items():
         trend = analyze_trend(t, scores.values)
         if trend and trend["p_value"] < 0.1:
             sign = metrics.get(metric, 1)
-            # 정규화된 점수 기준으로 slope 방향 판단
+            # 원본 raw 값의 초기/최근 평균
+            raw_series = pd.to_numeric(gdf[metric], errors="coerce")
+            raw_e, raw_r = raw_early_recent(raw_series, n=7)
             metric_trends[metric] = {
                 **trend,
                 "sign": sign,
                 "direction": direction_label(trend["slope"], sign),
+                "raw_early": raw_e,
+                "raw_recent": raw_r,
             }
     
     return {
@@ -147,9 +159,8 @@ def analyze_group(group_name: str, gdf: pd.DataFrame, metrics: dict) -> dict:
         "mean_headcount": mean_headcount,
         "data_points": len(gdf),
         "date_range": (gdf["snapdate"].min(), gdf["snapdate"].max()),
-        "hexa_index_mean": hexa_index.mean(),
-        "hexa_index_recent": hexa_index.iloc[-7:].mean() if len(hexa_index) >= 7 else hexa_index.mean(),
         "hexa_index_early": hexa_index.iloc[:7].mean() if len(hexa_index) >= 7 else hexa_index.mean(),
+        "hexa_index_recent": hexa_index.iloc[-7:].mean() if len(hexa_index) >= 7 else hexa_index.mean(),
         "hexa_trend": hexa_trend,
         "significant_metrics": metric_trends,
         "hexa_series": hexa_index,
@@ -183,11 +194,19 @@ def generate_markdown(results: list, metrics: dict) -> str:
     lines.append("")
     lines.append("2. Hexa Index = 유효 지표 정규화점수의 평균값")
     lines.append("   - 범위: 0 ~ 100점 (높을수록 좋음)")
+    lines.append("   ⚠️  Hexa Index의 절댓값(예: 47.74점)은 분석 기간 내 min/max에 상대적인 값으로,")
+    lines.append("      기간이 바뀌면 기준점이 달라지므로 절댓값 자체는 비교 의미가 없음.")
+    lines.append("      의미 있는 것은 '추세(slope의 방향과 p-value)'이며,")
+    lines.append("      Hexa Index가 전반적으로 오르는지 내리는지로 방향을 파악하는 용도임.")
     lines.append("")
     lines.append("3. 트렌드 분석 (선형회귀):")
     lines.append("   - scipy.stats.linregress(날짜_일수, 정규화점수) 으로 slope, p-value 산출")
     lines.append("   - slope > 0 → 개선 추세 / slope < 0 → 악화 추세")
     lines.append("   - p-value < 0.1 → 통계적으로 유의미한 추세")
+    lines.append("")
+    lines.append("4. 원본값 비교 (초기 7일 평균 → 최근 7일 평균):")
+    lines.append("   - 정규화 이전 실제 지표값 기준으로 얼마나 변했는지 확인")
+    lines.append("   - sign=+1: 값이 커지면 개선 / sign=-1: 값이 작아지면 개선")
     lines.append("```\n")
     
     lines.append("---\n")
@@ -198,7 +217,6 @@ def generate_markdown(results: list, metrics: dict) -> str:
         hc = res["mean_headcount"]
         dp = res["data_points"]
         dr = res["date_range"]
-        hi_mean = res["hexa_index_mean"]
         hi_early = res["hexa_index_early"]
         hi_recent = res["hexa_index_recent"]
         ht = res["hexa_trend"]
@@ -211,16 +229,15 @@ def generate_markdown(results: list, metrics: dict) -> str:
         lines.append(f"| 평균 활성개발자수 | {hc:.1f}명 |")
         lines.append(f"| 분석 데이터수 | {dp}일 |")
         lines.append(f"| 분석 기간 | {dr[0].strftime('%Y-%m-%d')} ~ {dr[1].strftime('%Y-%m-%d')} |")
-        lines.append(f"| 전체기간 Hexa Index 평균 | {hi_mean:.2f}점 |")
-        lines.append(f"| 초기 7일 Hexa Index 평균 | {hi_early:.2f}점 |")
-        lines.append(f"| 최근 7일 Hexa Index 평균 | {hi_recent:.2f}점 |")
+        lines.append(f"| Hexa Index 초기 7일 평균 | {hi_early:.2f}점 (정규화 기준, 절댓값 비교 무의미) |")
+        lines.append(f"| Hexa Index 최근 7일 평균 | {hi_recent:.2f}점 (정규화 기준, 절댓값 비교 무의미) |")
         
         if ht:
             p = ht["p_value"]
             sig = "유의미" if p < 0.1 else "무의미"
             dir_arrow = "📈 전반적 개선" if ht["slope"] > 0 else "📉 전반적 악화"
             r2 = ht["r_squared"]
-            lines.append(f"| Hexa Index 전체 추세 | {dir_arrow} (slope={ht['slope']:.4f}, p={format_pval(p)}, R²={r2:.3f}) → {sig} |")
+            lines.append(f"| Hexa Index 전체 추세 | {dir_arrow} (slope={ht['slope']:.4f}, p={format_pval(p)}, R²={r2:.3f}) → **{sig}** |")
         
         lines.append("")
         
@@ -231,26 +248,36 @@ def generate_markdown(results: list, metrics: dict) -> str:
             
             if improving:
                 lines.append(f"#### 📈 유의미하게 개선된 지표 ({len(improving)}개)\n")
-                lines.append("| 지표명 | 방향 | slope | p-value | R² | 평균점수 |")
-                lines.append("|--------|------|-------|---------|-----|---------|")
-                # slope 내림차순 정렬
+                lines.append("| 지표명 | 방향 | 초기7일 평균 → 최근7일 평균 | slope | p-value | R² |")
+                lines.append("|--------|------|--------------------------|-------|---------|-----|")
                 for metric, info in sorted(improving.items(), key=lambda x: -x[1]["slope"]):
+                    sign = info["sign"]
+                    re = info["raw_early"]
+                    rr = info["raw_recent"]
+                    # 개선 방향 화살표: sign=+1이면 값이 커져야 개선
+                    arrow = "↑" if rr > re else "↓"
                     lines.append(
                         f"| {metric} | {info['direction']} | "
+                        f"{re:.3g} → {rr:.3g} {arrow} | "
                         f"{info['slope']:.4f} | {format_pval(info['p_value'])} | "
-                        f"{info['r_squared']:.3f} | {info['mean']:.1f} |"
+                        f"{info['r_squared']:.3f} |"
                     )
                 lines.append("")
             
             if deteriorating:
                 lines.append(f"#### 📉 유의미하게 악화된 지표 ({len(deteriorating)}개)\n")
-                lines.append("| 지표명 | 방향 | slope | p-value | R² | 평균점수 |")
-                lines.append("|--------|------|-------|---------|-----|---------|")
+                lines.append("| 지표명 | 방향 | 초기7일 평균 → 최근7일 평균 | slope | p-value | R² |")
+                lines.append("|--------|------|--------------------------|-------|---------|-----|")
                 for metric, info in sorted(deteriorating.items(), key=lambda x: x[1]["slope"]):
+                    sign = info["sign"]
+                    re = info["raw_early"]
+                    rr = info["raw_recent"]
+                    arrow = "↑" if rr > re else "↓"
                     lines.append(
                         f"| {metric} | {info['direction']} | "
+                        f"{re:.3g} → {rr:.3g} {arrow} | "
                         f"{info['slope']:.4f} | {format_pval(info['p_value'])} | "
-                        f"{info['r_squared']:.3f} | {info['mean']:.1f} |"
+                        f"{info['r_squared']:.3f} |"
                     )
                 lines.append("")
         else:
@@ -258,28 +285,33 @@ def generate_markdown(results: list, metrics: dict) -> str:
         
         lines.append("---\n")
     
-    # 요약 테이블
-    lines.append("## 📊 전체 요약 (유의미한 Hexa Index 추세)\n")
-    lines.append("| 조직 | 활성개발자수 | Hexa Index 평균 | 추세 | slope | p-value | 판정 |")
-    lines.append("|------|------------|----------------|------|-------|---------|------|")
+    # 요약 테이블 - 추세 중심으로 재구성
+    lines.append("## 📊 전체 요약 (Hexa Index 추세)\n")
+    lines.append("> ⚠️ **Hexa Index 절댓값(초기/최근 평균점수)은 분석 기간 내 상대 정규화값이므로 수치 자체보다 '추세 방향(slope)'과 '유의성(p-value)'을 중심으로 해석하세요.**")
+    lines.append("")
+    lines.append("| 조직 | 활성개발자수 | Hexa Index 추세 방향 | slope | p-value | 판정 | 유의미 개선지표 | 유의미 악화지표 |")
+    lines.append("|------|------------|---------------------|-------|---------|------|----------------|----------------|")
     for res in results:
         g = res["group"]
         hc = res["mean_headcount"]
-        hi_mean = res["hexa_index_mean"]
         ht = res["hexa_trend"]
+        sig = res["significant_metrics"]
+        n_imp = sum(1 for v in sig.values() if v["slope"] > 0)
+        n_det = sum(1 for v in sig.values() if v["slope"] <= 0)
         if ht:
             slope = ht["slope"]
             p = ht["p_value"]
             trend_str = "📈 개선" if slope > 0 else "📉 악화"
-            sig_str = "유의미" if p < 0.1 else "무의미"
+            sig_str = "**유의미**" if p < 0.1 else "무의미"
         else:
             trend_str = "-"
             slope = float("nan")
             p = float("nan")
             sig_str = "-"
         lines.append(
-            f"| {g} | {hc:.0f}명 | {hi_mean:.2f} | "
-            f"{trend_str} | {slope:.4f} | {format_pval(p) if not np.isnan(p) else '-'} | {sig_str} |"
+            f"| {g} | {hc:.0f}명 | {trend_str} | "
+            f"{slope:.4f} | {format_pval(p) if not np.isnan(p) else '-'} | "
+            f"{sig_str} | {n_imp}개 | {n_det}개 |"
         )
     
     lines.append("")
@@ -324,7 +356,8 @@ def main():
     for res in results:
         ht = res["hexa_trend"]
         g = res["group"]
-        hi = res["hexa_index_mean"]
+        hi_e = res["hexa_index_early"]
+        hi_r = res["hexa_index_recent"]
         sig_count = len(res["significant_metrics"])
         if ht:
             trend = "개선" if ht["slope"] > 0 else "악화"
@@ -332,7 +365,7 @@ def main():
             sig_str = f"(p={p:.4f}, {'유의미' if p < 0.1 else '무의미'})"
         else:
             trend, sig_str = "-", ""
-        print(f"  {g}: Hexa Index={hi:.2f}, 추세={trend}{sig_str}, 유의미지표={sig_count}개")
+        print(f"  {g}: Hexa Index 초기→최근={hi_e:.2f}→{hi_r:.2f}, 추세={trend}{sig_str}, 유의미지표={sig_count}개")
     
     # Markdown 생성
     md_content = generate_markdown(results, metrics)

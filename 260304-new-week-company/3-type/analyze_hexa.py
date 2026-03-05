@@ -92,16 +92,20 @@ print(f"\nGroups with active head count >= 10: {active_groups}")
 #   - p-value < 0.1 → significant change
 #   - Direction: compare latest value vs baseline mean, adjusted by sign
 
+BASELINE_WEEKS = 12  # 최근 12주(3개월)만 baseline으로 사용
+
 def test_metric_change(group_df, metric, sign):
     """
     Test if latest week's metric value is significantly different from baseline.
+    Baseline: most recent BASELINE_WEEKS weeks (excluding latest week).
     
     Returns: (latest_val, baseline_mean, z_score, p_value, direction)
     direction: 'improved' | 'worsened' | 'no_change'
     """
     group_df = group_df.sort_values('snapdate')
     latest = group_df.iloc[-1]
-    baseline = group_df.iloc[:-1]
+    # Use only recent BASELINE_WEEKS weeks as baseline (exclude latest)
+    baseline = group_df.iloc[-(BASELINE_WEEKS + 1):-1]
     
     latest_val = latest[metric]
     baseline_vals = baseline[metric].dropna()
@@ -147,10 +151,9 @@ for group in active_groups:
     if len(gdf) < 4:
         continue
     
-    # Hexa index trend test
-    hexa_vals = gdf['hexa_index'].dropna()
+    # Hexa index trend test (최근 BASELINE_WEEKS 주만 baseline으로 사용)
     latest_hexa = gdf.iloc[-1]['hexa_index']
-    baseline_hexa = gdf.iloc[:-1]['hexa_index'].dropna()
+    baseline_hexa = gdf.iloc[-(BASELINE_WEEKS + 1):-1]['hexa_index'].dropna()
     
     hexa_test = None
     if len(baseline_hexa) >= 3:
@@ -212,7 +215,7 @@ lines.append("")
 lines.append("### 유의미성 검정 방법")
 lines.append("")
 lines.append("```")
-lines.append("- 기준선: 최근 주를 제외한 모든 주의 값")
+lines.append("- **기준선**: 최근 주를 제외한 **최근 12주(3개월)**의 값 (장기 히스토리 왜곡 방지)")
 lines.append("- 검정 방법: One-sample t-test (최근 주 값 vs 기준선 분포)")
 lines.append("- 유의수준: p-value < 0.1 → 유의미한 변화")
 lines.append("- z-score = (최근값 - 기준선 평균) / 기준선 표준편차")

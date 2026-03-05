@@ -280,6 +280,64 @@ nl()
 para("> `*` p<0.05 (통계적으로 유의한 선형 추세)")
 nl()
 
+# ── 5.1 주목 지표 심층 분석 ──────────────────────────────────────────────────
+WATCH_METRICS = [
+    "인당 이슈Inflow(발생)",
+    "인당 상시잔여이슈",
+    "이슈 처리일",
+    "활성개발자수",
+]
+h(3, "5.1-A 주목 지표 심층 분석")
+para(
+    "아래 4개 지표는 팀 전반의 업무 부하·해소 능력·활동성을 직접 반영하는 핵심 지표입니다. "
+    "지속적인 악화 추세가 감지되어 별도로 심층 분석합니다."
+)
+nl()
+
+for wm in WATCH_METRICS:
+    if wm not in pt_ts.columns:
+        continue
+    s = pt_ts[["snapdate", wm]].dropna()
+    if len(s) < 3:
+        continue
+    x = np.arange(len(s))
+    slope, intercept, r_val, p_val, _ = stats.linregress(x, s[wm].values)
+    sign = name_sign.get(wm, 1)
+    is_bad = (sign == 1 and slope < 0) or (sign == -1 and slope > 0)
+    trend_icon = "⚠️ 악화 추세" if is_bad else "✅ 개선 추세"
+    pmark = f"(p={p_val:.4f} **유의**)" if p_val < 0.05 else f"(p={p_val:.4f} 미유의)"
+
+    # Weekly means for context
+    pt_ts_wk = pt_ts.copy()
+    pt_ts_wk["year_week"] = pt_ts_wk["snapdate"].dt.strftime("%Y-W%V")
+    wm_vals = pt_ts_wk.groupby("year_week")[wm].mean()
+    first_val = wm_vals.iloc[0] if len(wm_vals) > 0 else np.nan
+    last_val  = wm_vals.iloc[-1] if len(wm_vals) > 0 else np.nan
+    delta_total = last_val - first_val if not np.isnan(first_val) else np.nan
+
+    h(4, f"{sign_label(wm)} {wm}  {trend_icon}")
+    para(f"- **선형 기울기**: `{slope:+.5f}` {pmark}")
+    para(f"- **분석 기간 첫 주 평균**: `{fmt(first_val)}` → **최근 주 평균**: `{fmt(last_val)}` (총 변화: `{fmt(delta_total)}`)")
+    para(f"- **해석**:")
+
+    if wm == "인당 이슈Inflow(발생)":
+        para("이슈 발생량이 지속 증가하고 있습니다. 새로운 기능 개발·외부 요인·테스트 증가 등으로 "
+             "이슈 유입이 가속되고 있으며, **인당 상시잔여이슈**와 **이슈 처리일** 악화와 연동됩니다.")
+    elif wm == "인당 상시잔여이슈":
+        para("처리되지 않고 남아 있는 이슈 수가 증가 추세입니다. "
+             "Inflow 증가 또는 Outflow 정체가 복합적으로 작용하며, 적체가 누적될 경우 "
+             "이슈 처리일이 길어지는 악순환으로 이어집니다.")
+    elif wm == "이슈 처리일":
+        para("이슈 한 건을 처리하는 데 걸리는 평균 일수가 증가하고 있습니다. "
+             "잔여이슈 누적·복잡도 증가·활성개발자 감소가 원인일 수 있습니다.")
+    elif wm == "활성개발자수":
+        para("실제로 활동하는 개발자 수가 감소 추세입니다. "
+             "이는 코드 변경량·이슈 처리량·리뷰 활동 모두에 영향을 주는 구조적 위험 신호입니다.")
+    nl()
+
+para("> 💡 **연관 패턴**: 활성개발자 감소 → 인당 이슈Inflow 증가(부담 집중) → 잔여이슈 누적 → 이슈 처리일 증가의 악순환 구조가 의심됩니다.")
+nl()
+
 # Per-org weekly trend
 h(3, "5.2 조직별 주간 평균 추세")
 for m in KEY_METRICS[:6]:  # limit to 6 for readability
@@ -352,6 +410,40 @@ if not pairs_found:
     para("강한 상관관계(|r|≥0.7)를 가진 지표 쌍 없음")
 nl()
 
+# ── 6.2-A Review수 vs Reject/Review율 인사이트 ──────────────────────────────
+h(3, "6.2-A 주목 상관관계: 인당 Review수 ↔ Reject/Review율[리뷰관점]")
+
+rv_m    = "인당 Review수"
+rr_m    = "Reject/Review율[리뷰관점]"
+if rv_m in corr_matrix.index and rr_m in corr_matrix.columns:
+    r_rv_rr = corr_matrix.loc[rv_m, rr_m]
+    para(f"**Pearson r = {r_rv_rr:.3f}** — {rv_m}과 {rr_m} 사이에 음(-)의 상관관계가 있습니다.")
+    nl()
+    para("**해석**:")
+    para(
+        "- `[+] 인당 Review수`가 많아질수록 `[+] Reject/Review율[리뷰관점]`이 **낮아지는** 경향이 있습니다."
+    )
+    para(
+        "- 즉 리뷰 횟수가 증가하면 개별 리뷰당 Reject 비율은 오히려 감소합니다."
+    )
+    para(
+        "- 이는 **리뷰 건수가 많아질수록 Reject 없이 통과되는 코드 비중이 늘어나는** 현상으로, "
+        "두 가지 해석이 가능합니다:"
+    )
+    para(
+        "  1. 리뷰 활동이 활발해질수록 코드 품질이 사전에 향상되어 Reject 필요성이 줄어든다 (긍정적 해석)."
+    )
+    para(
+        "  2. 리뷰 부담 증가로 인해 리뷰어가 형식적으로 통과시키는 비율이 높아진다 (부정적 해석)."
+    )
+    para(
+        "- **권고**: Reject/Review율이 낮은 주차에 실제 코드 품질 지표(버그 수, 재작업률 등)를 "
+        "교차 확인하여 어떤 해석이 맞는지 검증할 것을 권장합니다."
+    )
+else:
+    para("해당 지표 쌍 데이터 부족으로 분석 불가")
+nl()
+
 # ════════════════════════════════════════════════════════════════════════════
 # 7. 이상값(Outlier) 탐지 분석
 # ════════════════════════════════════════════════════════════════════════════
@@ -395,6 +487,44 @@ nl()
 h(2, "8. 복합 생산성 지수 분석")
 
 para("이슈 처리 효율성과 코드 생산성을 결합한 복합 지수를 계산합니다.")
+nl()
+
+# ── 8.0 산출 공식 ─────────────────────────────────────────────────────────────
+h(3, "8.0 복합 지수 산출 공식")
+para("각 복합 지수는 구성 지표를 **0–1 Min-Max 정규화** 후 단순 평균으로 계산합니다.")
+nl()
+para("```")
+para("정규화(m) =")
+para("  (value - min) / (max - min)          # [+] 지표 (클수록 좋음)")
+para("  1 - (value - min) / (max - min)      # [-] 지표 (작을수록 좋음)")
+nl()
+para("복합 지수 = mean( 정규화(m₁), 정규화(m₂), ... )")
+para("```")
+nl()
+
+para("각 지수의 구성 지표와 방향은 다음과 같습니다.")
+nl()
+table_header("복합 지수", "구성 지표", "방향", "정규화 방식")
+composite_desc = {
+    "이슈처리효율": [
+        ("이슈 처리율(Outflow/Inflow)", "[+]", "그대로 사용"),
+        ("인당 이슈Outflow(해결)",       "[+]", "그대로 사용"),
+    ],
+    "코드생산성": [
+        ("인당 코드 변경량",              "[+]", "그대로 사용"),
+        ("인당 개발산출물Outflow(해결)",  "[+]", "그대로 사용"),
+    ],
+    "리뷰활동": [
+        ("인당 Review수",  "[+]", "그대로 사용"),
+        ("인당 Reject수",  "[+]", "그대로 사용"),
+    ],
+}
+for idx_name, mlist_desc in composite_desc.items():
+    for i, (mn, sl, norm_desc) in enumerate(mlist_desc):
+        prefix = f"**{idx_name}**" if i == 0 else ""
+        table_row(prefix, mn, sl, norm_desc)
+nl()
+para("> 지수 범위: 0.0(최저) ~ 1.0(최고). 주차 내 일별 값의 평균으로 표시됩니다.")
 nl()
 
 prod_metrics = {
@@ -511,6 +641,48 @@ if bad_trends:
 else:
     para("통계적으로 유의한 악화 추세 지표 없음")
 
+nl()
+# ── 핵심 경고: 3대 악화 지표 ────────────────────────────────────────────────
+ALERT_METRICS = ["인당 이슈Inflow(발생)", "활성개발자수", "인당 Review수"]
+h(4, "⚠️ 핵심 경고: 3대 구조적 악화 지표")
+
+para("아래 3개 지표는 단순 수치 악화를 넘어 **팀 역량과 활동성의 구조적 저하**를 의미합니다.")
+nl()
+
+alert_rows = {m: None for m in ALERT_METRICS}
+for m, sl, p, _ in bad_trends:
+    if m in alert_rows:
+        alert_rows[m] = (sl, p)
+
+table_header("지표", "기울기", "p-값", "영향 및 위험")
+alert_detail = {
+    "인당 이슈Inflow(발생)": (
+        "이슈 유입이 지속 증가 → 잔여이슈 누적·처리일 증가의 원인. "
+        "활성개발자 감소와 겹쳐 1인당 부담이 가중됩니다."
+    ),
+    "활성개발자수": (
+        "실제 활동 인원 감소 → 코드 생산량·이슈 처리량·리뷰 활동 동반 저하. "
+        "가장 광범위한 파급효과를 가진 근본 원인 지표입니다."
+    ),
+    "인당 Review수": (
+        "리뷰 활동이 줄어들면 코드 품질 안전망이 약해집니다. "
+        "활성개발자 감소와 연동되며, Reject/Review율 왜곡(6.2-A 참조)을 유발할 수 있습니다."
+    ),
+}
+for m in ALERT_METRICS:
+    val = alert_rows.get(m)
+    detail = alert_detail.get(m, "-")
+    if val:
+        table_row(f"{sign_label(m)} **{m}**", f"{val[0]:+.5f}", f"{val[1]:.4f}", detail)
+    else:
+        table_row(f"{sign_label(m)} **{m}**", "N/A", "N/A", detail)
+
+nl()
+para(
+    "> 💡 **권고**: 세 지표는 상호 연관된 악순환 구조를 형성합니다. "
+    "**활성개발자수** 회복이 가장 우선 과제이며, 이슈 Triage 프로세스 강화와 "
+    "리뷰 참여 독려가 병행되어야 합니다."
+)
 nl()
 h(3, "10.3 조직별 종합 평가")
 para("최신 주차 기준 PARTNER_TOTAL 대비 각 조직 핵심 지표 상대적 평가입니다.")
