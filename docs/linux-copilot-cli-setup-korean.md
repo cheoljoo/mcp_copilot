@@ -5,6 +5,18 @@ $  npm install -g @github/copilot
 
 added 7 packages in 5s
 
+## when you meet the following error
+- if npm is not exist
+  - $ sudo apt install npm
+- Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules'
+  - ```
+    mkdir -p ~/.npm-global
+    npm config set prefix ~/.npm-global
+    echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+    source ~/.bashrc
+    npm install -g @github/copilot
+    ```
+
 # 2. how to run
 ```
 $  copilot
