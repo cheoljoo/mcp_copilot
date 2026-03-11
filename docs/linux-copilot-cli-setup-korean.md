@@ -1,5 +1,3 @@
-
-
 # 1. how to install
 $  npm install -g @github/copilot
 
@@ -16,6 +14,8 @@ added 7 packages in 5s
     source ~/.bashrc
     npm install -g @github/copilot
     ```
+## uv install (if want)
+- $ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # 2. how to run
 ```
