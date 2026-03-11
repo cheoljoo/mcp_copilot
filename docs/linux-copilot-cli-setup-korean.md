@@ -45,7 +45,7 @@ $  copilot
  >  Enter @ to mention files or / for commands
  ```
 
-- always put y option
+- 묻지 않고 무조건 Yes 로 수행 (yes/no 입력 귀찮을때 : 알아서 해)
   - $ ```copilot --yolo```
 
  ## 2.1. login
