@@ -45,6 +45,9 @@ $  copilot
  >  Enter @ to mention files or / for commands
  ```
 
+- always put y option
+  - $ ```copilot --yolo```
+
  ## 2.1. login
  - /login
     - brower login and put the value
