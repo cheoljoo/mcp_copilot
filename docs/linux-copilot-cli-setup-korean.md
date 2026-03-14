@@ -56,6 +56,37 @@ $  copilot
         - https://github.com/login/device in your windows browswer. after login , you can put one-time code
     - login OK.
 
+## model
+
+## mcp flow
+```
+LLM의 역할 분리: LLM은 "무엇을 해야 함"만 알고, "어떻게 할지"는 MCP 서버가 담당
+보안: LLM이 직접 GitHub/DB에 접근하지 않음 (VS Code를 통한 간접 접근)
+확장성: 새로운 MCP 서버를 추가해도 LLM 모델은 수정 불필요
+컨텍스트 효율성: LLM이 실제 필요한 데이터만 받음
+
+
+vs code 를 실행 > vs code에서 MCP server들에 대한 정보를 LLM에 알려주고,
+> LLM에서는 MCP 서버들의 무엇을 할수 있는지 인식 > LLM은 github관련된 것은 MCP가 있다고 인식
+
+사용자: "내 GitHub 저장소를 알려줘"
+  ↓
+VS Code (입력 수신) : client
+  ↓
+LLM: "github_list_repositories 도구를 호출해야겠다"
+  ↓
+LLM → VS Code: "이 도구 실행해줘" (요청)
+  ↓
+VS Code → MCP Server: "실제로 실행" (stdio/HTTP) MCP server에서 github 관련 정보를 얻어내는 것임.  (회사 내부)
+  ↓
+MCP Server → VS Code: 결과 반환  (stdio)  
+  ↓
+VS Code → LLM: 결과 전달
+  ↓
+LLM: 자연언어로 정리
+  ↓
+VS Code → 사용자: 답변 표시
+```
 
 ## 2.2. mcp (jira, confluence))
 - configuration in linux : ```$  cat /data01/cheoljoo.lee/.copilot/mcp-config.json```
