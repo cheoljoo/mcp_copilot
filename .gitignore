@@ -137,6 +137,7 @@ celerybeat.pid
 # Environments
 .env
 .envrc
+worklog_tools/make.key.mk
 .venv
 env/
 venv/
